@@ -35,6 +35,8 @@ Para enviar capturas reais, defina a URL base do Hub antes de iniciar o Expo:
 
 ```powershell
 $env:EXPO_PUBLIC_HUB_API_URL="https://hub.vezetiv.dev"
+$env:EXPO_PUBLIC_SUPABASE_URL="https://seu-projeto.supabase.co"
+$env:EXPO_PUBLIC_SUPABASE_ANON_KEY="sua-chave-anon-ou-publishable"
 npm run start:lan
 ```
 
@@ -44,7 +46,7 @@ O app enviará `multipart/form-data` para:
 POST {EXPO_PUBLIC_HUB_API_URL}/api/voice-captures
 ```
 
-Se `EXPO_PUBLIC_HUB_API_URL` não estiver definida, o app mantém gravação, listagem, reprodução e exclusão locais funcionando, mas mostra um erro claro ao tentar enviar para o Hub.
+Se `EXPO_PUBLIC_HUB_API_URL` não estiver definida, o app mantém gravação, listagem, reprodução e exclusão locais funcionando, mas mostra um erro claro ao tentar enviar para o Hub. Se as variáveis do Supabase não estiverem definidas, o app mostra erro claro ao tentar login.
 
 ## Se o Expo Go não abrir pelo QR Code
 
@@ -92,7 +94,8 @@ O modo Tunnel depende do serviço externo usado pelo Expo. Se ele falhar, tente 
 - Persistência local dos metadados com AsyncStorage.
 - Arquivo de áudio salvo no diretório `document` do app.
 - Lista de capturas recentes com data, duração e status.
-- Tela de detalhes com player de áudio, metadados, exclusão e envio real para o Hub via `multipart/form-data`.
+- Login com Supabase Auth usando email/senha antes da tela de capturas.
+- Tela de detalhes com player de áudio, metadados, exclusão e envio autenticado para o Hub via `multipart/form-data`.
 - `src/services/hubApi.ts` concentra o upload e a leitura futura de status remoto.
 
 ## Decisões da base mobile

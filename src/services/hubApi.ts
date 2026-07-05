@@ -1,4 +1,5 @@
 import { VoiceCapture } from '../types/capture';
+import { getCurrentAccessToken } from './supabaseClient';
 
 type UploadVoiceCaptureResponse = {
   remoteId: string;
@@ -17,6 +18,7 @@ export async function uploadVoiceCapture(
   metadata: VoiceCapture,
 ): Promise<UploadVoiceCaptureResponse> {
   const baseUrl = getHubApiBaseUrl();
+  const accessToken = await getCurrentAccessToken();
   const formData = new FormData();
 
   formData.append('audio', {
@@ -35,6 +37,9 @@ export async function uploadVoiceCapture(
 
   const response = await fetch(`${baseUrl}/api/voice-captures`, {
     method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
     body: formData,
   });
 
@@ -57,7 +62,12 @@ export async function uploadVoiceCapture(
 
 export async function getVoiceCaptureStatus(id: string): Promise<string> {
   const baseUrl = getHubApiBaseUrl();
-  const response = await fetch(`${baseUrl}/api/voice-captures/${encodeURIComponent(id)}`);
+  const accessToken = await getCurrentAccessToken();
+  const response = await fetch(`${baseUrl}/api/voice-captures/${encodeURIComponent(id)}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 
   if (!response.ok) {
     throw new Error(await getHttpErrorMessage(response));
@@ -80,6 +90,10 @@ function getHubApiBaseUrl(): string {
 }
 
 async function getHttpErrorMessage(response: Response): Promise<string> {
+  if (response.status === 401) {
+    return 'Sessao ausente ou expirada. Faca login novamente para enviar ao Hub.';
+  }
+
   const fallback = `Falha ao enviar captura para o Hub. HTTP ${response.status}.`;
 
   try {

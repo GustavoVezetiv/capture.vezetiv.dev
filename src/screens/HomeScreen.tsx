@@ -20,6 +20,7 @@ type HomeScreenProps = {
   captures: VoiceCapture[];
   onCapturesChange: (captures: VoiceCapture[]) => void;
   onOpenCapture: (capture: VoiceCapture) => void;
+  onSignOut: () => void;
 };
 
 type ActiveRecording = {
@@ -38,7 +39,7 @@ const QUICK_RECORDINGS = [
   { label: 'Gravar 30 min', seconds: 30 * 60 },
 ];
 
-export function HomeScreen({ captures, onCapturesChange, onOpenCapture }: HomeScreenProps) {
+export function HomeScreen({ captures, onCapturesChange, onOpenCapture, onSignOut }: HomeScreenProps) {
   const audioRecorder = useAudioRecorder(RECORDING_OPTIONS);
   const [activeRecording, setActiveRecording] = useState<ActiveRecording | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -155,7 +156,10 @@ export function HomeScreen({ captures, onCapturesChange, onOpenCapture }: HomeSc
         ListHeaderComponent={
           <View style={styles.header}>
             <View>
-              <Text style={styles.title}>Vozetiv Capture</Text>
+              <View style={styles.titleRow}>
+                <Text style={styles.title}>Vozetiv Capture</Text>
+                <PrimaryButton label="Sair" onPress={onSignOut} variant="ghost" style={styles.signOutButton} />
+              </View>
               <Text style={styles.subtitle}>Captura de Voz para ideias, tarefas e observacoes do Hub.</Text>
             </View>
 
@@ -225,8 +229,17 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#10201D',
+    flex: 1,
     fontSize: 38,
     fontWeight: '900',
+  },
+  titleRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 12,
+  },
+  signOutButton: {
+    minHeight: 40,
   },
   subtitle: {
     color: '#52615E',
