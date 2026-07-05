@@ -27,15 +27,38 @@ export function CaptureDetailsScreen({
     setIsUploading(true);
 
     try {
-      await uploadVoiceCapture(capture.fileUri, capture);
-      const updated = await updateCapture(capture.id, { status: 'enviado_mock' });
+      const uploading = await updateCapture(capture.id, {
+        status: 'enviando',
+        lastUploadError: undefined,
+      });
+
+      if (uploading) {
+        onCaptureUpdated(uploading);
+      }
+
+      const uploadResult = await uploadVoiceCapture(capture.fileUri, capture);
+      const updated = await updateCapture(capture.id, {
+        status: 'enviado',
+        remoteId: uploadResult.remoteId,
+        hubStatus: uploadResult.hubStatus,
+        lastUploadError: undefined,
+      });
 
       if (updated) {
         onCaptureUpdated(updated);
       }
     } catch (error) {
-      await updateCapture(capture.id, { status: 'erro' });
-      Alert.alert('Erro no envio mockado', error instanceof Error ? error.message : 'Tente novamente.');
+      const message = error instanceof Error ? error.message : 'Tente novamente.';
+      const failed = await updateCapture(capture.id, {
+        status: 'erro',
+        lastUploadError: message,
+      });
+
+      if (failed) {
+        onCaptureUpdated(failed);
+      }
+
+      Alert.alert('Erro ao enviar para o Hub', message);
     } finally {
       setIsUploading(false);
     }
@@ -70,6 +93,11 @@ export function CaptureDetailsScreen({
         <View style={styles.metadata}>
           <MetadataRow label="Duracao" value={formatDuration(capture.durationSeconds)} />
           <MetadataRow label="Status" value={formatStatus(capture.status)} />
+          {capture.remoteId ? <MetadataRow label="ID no Hub" value={capture.remoteId} /> : null}
+          {capture.hubStatus ? <MetadataRow label="Status no Hub" value={capture.hubStatus} /> : null}
+          {capture.lastUploadError ? (
+            <MetadataRow label="Ultimo erro de envio" value={capture.lastUploadError} />
+          ) : null}
           <MetadataRow label="Arquivo" value={capture.fileUri} />
           <MetadataRow
             label="Modo"
