@@ -4,7 +4,7 @@ Protótipo pessoal do ecossistema Vezetiv.dev/Hub. O nome visual provisório do 
 
 O MVP roda com Expo, React Native e TypeScript, testado inicialmente em um celular Android físico com Expo Go. A primeira fase usa apenas ferramentas leves de JavaScript.
 
-A base está fixada no Expo SDK 56 para manter compatibilidade com o Expo Go instalado pela loja no celular.
+A base está em Expo SDK 57, conforme definido no `package.json`.
 
 ## Requisitos
 
@@ -25,9 +25,26 @@ Depois:
 
 1. Abra o Expo Go no celular Android.
 2. Escaneie o QR Code mostrado pelo terminal.
-3. Teste gravação, listagem de capturas, reprodução, exclusão e envio mockado.
+3. Teste gravação, listagem de capturas, reprodução, exclusão e envio para o Hub quando a URL estiver configurada.
 
 Mantenha computador e celular na mesma rede. Se a rede bloquear o modo LAN, use a opção Tunnel no terminal do Expo.
+
+## Configurar envio para o Hub
+
+Para enviar capturas reais, defina a URL base do Hub antes de iniciar o Expo:
+
+```powershell
+$env:EXPO_PUBLIC_HUB_API_URL="https://hub.vezetiv.dev"
+npm run start:lan
+```
+
+O app enviará `multipart/form-data` para:
+
+```text
+POST {EXPO_PUBLIC_HUB_API_URL}/api/voice-captures
+```
+
+Se `EXPO_PUBLIC_HUB_API_URL` não estiver definida, o app mantém gravação, listagem, reprodução e exclusão locais funcionando, mas mostra um erro claro ao tentar enviar para o Hub.
 
 ## Se o Expo Go não abrir pelo QR Code
 
@@ -75,8 +92,8 @@ O modo Tunnel depende do serviço externo usado pelo Expo. Se ele falhar, tente 
 - Persistência local dos metadados com AsyncStorage.
 - Arquivo de áudio salvo no diretório `document` do app.
 - Lista de capturas recentes com data, duração e status.
-- Tela de detalhes com player de áudio, metadados, exclusão e envio mockado.
-- `src/services/hubApi.ts` preparado para trocar o mock pela URL real do Hub.
+- Tela de detalhes com player de áudio, metadados, exclusão e envio real para o Hub via `multipart/form-data`.
+- `src/services/hubApi.ts` concentra o upload e a leitura futura de status remoto.
 
 ## Decisões da base mobile
 
@@ -84,7 +101,7 @@ O modo Tunnel depende do serviço externo usado pelo Expo. Se ele falhar, tente 
 - `expo-audio` foi escolhido por ser biblioteca Expo para gravação e reprodução, compatível com Expo Go.
 - AsyncStorage é suficiente nesta fase porque persistimos apenas metadados simples.
 - A navegação está em estado local para evitar dependência extra no protótipo.
-- Upload real, autenticação, IA e integrações externas ficam fora do MVP inicial.
+- Autenticação, IA e integrações externas ficam fora do MVP inicial.
 
 ## Builds futuras
 
@@ -102,7 +119,7 @@ Funcionalidades como gravação em background, foreground service, notificaçõe
 
 ## Preparado para a próxima fase
 
-- Trocar `EXPO_PUBLIC_HUB_API_URL` e implementar upload real em `hubApi.ts`.
+- Evoluir autenticação e contrato do Hub a partir de `EXPO_PUBLIC_HUB_API_URL`.
 - Adicionar autenticação quando o Hub exigir sessão.
 - Evoluir status remoto via `getVoiceCaptureStatus`.
 - Migrar de AsyncStorage para SQLite se os metadados crescerem ou precisarem de filtros mais ricos.

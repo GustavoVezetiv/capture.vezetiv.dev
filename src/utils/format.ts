@@ -1,3 +1,5 @@
+import type { CaptureStatus } from '../types/capture';
+
 export function formatDuration(totalSeconds: number): string {
   const safeSeconds = Math.max(0, Math.floor(totalSeconds));
   const hours = Math.floor(safeSeconds / 3600);
@@ -21,16 +23,17 @@ export function formatDateTime(value: string): string {
   }).format(new Date(value));
 }
 
-export function formatStatus(status: string): string {
-  const labels: Record<string, string> = {
-    local: 'local',
-    enviado: 'enviado',
-    processado: 'processado',
-    erro: 'erro',
-    enviado_mock: 'enviado mock',
+export function formatStatus(status: CaptureStatus): string {
+  const labels: Record<CaptureStatus, string> = {
+    local: 'Local',
+    enviando: 'Enviando',
+    enviado: 'Enviado',
+    processado: 'Processado',
+    erro: 'Erro',
+    enviado_mock: 'Enviado mock',
   };
 
-  return labels[status] ?? status;
+  return labels[status];
 }
 
 function pad(value: number): string {
